@@ -1,7 +1,10 @@
-import { useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
 import { formatDistanceToNow } from 'date-fns'
 import { FileText, Code, PenTool, StickyNote, File } from 'lucide-react'
+import type { Doc } from '../../../convex/_generated/dataModel'
+
+interface DocumentListProps {
+  documents: Doc<'documents'>[]
+}
 
 const typeIcons = {
   report: FileText,
@@ -19,9 +22,7 @@ const typeColors = {
   other: 'text-gray-500 bg-gray-50',
 }
 
-export function DocumentList() {
-  const documents = useQuery(api.documents.getAllDocuments) ?? []
-
+export function DocumentList({ documents }: DocumentListProps) {
   return (
     <div className="h-full overflow-y-auto p-6">
       <h2 className="font-serif-display text-xl font-bold text-ink-900 mb-6">
