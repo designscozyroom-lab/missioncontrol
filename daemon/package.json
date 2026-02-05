@@ -1,0 +1,16 @@
+{
+  "name": "mc-notification-daemon",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "npx tsx notification-daemon.ts",
+    "dev": "npx tsx watch notification-daemon.ts"
+  },
+  "dependencies": {
+    "convex": "^1.17.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "@types/node": "^20.10.0"
+  }
+}
