@@ -1,18 +1,9 @@
 import { formatDistanceToNow } from 'date-fns'
 import { MessageSquare, FileText, CheckCircle, UserPlus, AlertCircle } from 'lucide-react'
-
-interface Activity {
-  _id: string
-  agentId: string
-  action: string
-  targetType: 'task' | 'message' | 'document' | 'agent'
-  targetId: string
-  message: string
-  createdAt: number
-}
+import type { Doc } from '../../../convex/_generated/dataModel'
 
 interface ActivityFeedProps {
-  activities: Activity[]
+  activities: Doc<'activities'>[]
 }
 
 const actionIcons = {
