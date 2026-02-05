@@ -1,8 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-cream-50: #FEFDFB;
+  --color-cream-100: #FAF8F5;
+  --color-cream-200: #F5F0E8;
+  
+  --color-ink-900: #1A1A1A;
+  --color-ink-700: #3D3D3D;
+  --color-ink-500: #6B6B6B;
+  --color-ink-400: #8A8A8A;
+  --color-ink-300: #9A9A9A;
+  --color-ink-200: #BFBFBF;
+  --color-ink-100: #E5E5E5;
+  
+  --color-brick-600: #C53030;
+  --color-brick-500: #E53E3E;
+  --color-brick-400: #FC8181;
+  --color-brick-100: #FED7D7;
+  
+  --color-gold-500: #D69E2E;
+  --color-gold-400: #ECC94B;
+  
+  --font-family-serif: Georgia, Cambria, 'Times New Roman', serif;
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-display: 'Playfair Display', Georgia, serif;
+}
 
 :root {
   font-family: 'Inter', system-ui, sans-serif;
@@ -18,8 +42,8 @@
 
 body {
   min-height: 100vh;
-  background-color: #FAF8F5;
-  color: #1A1A1A;
+  background-color: var(--color-cream-100);
+  color: var(--color-ink-900);
 }
 
 #root {
@@ -33,20 +57,24 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F0E8;
+  background: var(--color-cream-200);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #9A9A9A;
+  background: var(--color-ink-300);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6B6B6B;
+  background: var(--color-ink-500);
 }
 
 /* Custom utilities */
 .font-serif-display {
+  font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+}
+
+.font-serif {
   font-family: Georgia, Cambria, 'Times New Roman', serif;
 }
 
@@ -65,7 +93,7 @@ body {
 }
 
 /* Status indicator pulse */
-@keyframes pulse {
+@keyframes pulse-glow {
   0%, 100% {
     opacity: 1;
   }
@@ -75,5 +103,21 @@ body {
 }
 
 .status-pulse {
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Prose styles for task content */
+.prose h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prose th, .prose td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
 }
