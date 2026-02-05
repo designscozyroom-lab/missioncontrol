@@ -1,23 +1,24 @@
 import { useState } from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '../convex/_generated/api'
 import { MainLayout } from './components/layout/MainLayout'
 import { TaskBoard } from './components/tasks/TaskBoard'
 import { TaskDetail } from './components/tasks/TaskDetail'
 import { ActivityFeed } from './components/activity/ActivityFeed'
 import { DocumentList } from './components/documents/DocumentList'
-import { mockAgents, mockTasks, mockActivities, mockDocuments } from './mockData'
-import type { Task } from './mockData'
+import type { Id } from '../convex/_generated/dataModel'
 
 type ViewMode = 'active' | 'chat' | 'broadcast' | 'docs'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('active')
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<Id<'tasks'> | null>(null)
   const [selectedAgentFilter, setSelectedAgentFilter] = useState<string | null>(null)
 
-  const agents = mockAgents
-  const tasks = mockTasks
-  const activities = mockActivities
-  const documents = mockDocuments
+  const agents = useQuery(api.agents.getAllAgents) ?? []
+  const tasks = useQuery(api.tasks.getAllTasks) ?? []
+  const activities = useQuery(api.activities.getRecentActivities, { limit: 50 }) ?? []
+  const documents = useQuery(api.documents.getAllDocuments) ?? []
 
   const activeAgents = agents.filter(a => a.status === 'active').length
 
@@ -34,7 +35,7 @@ function App() {
     ? tasks.filter(t => t.assignedTo === selectedAgentFilter)
     : tasks
 
-  const selectedTask = tasks.find(t => t._id === selectedTaskId) || null
+  const selectedTask = selectedTaskId ? tasks.find(t => t._id === selectedTaskId) : null
 
   return (
     <MainLayout
@@ -48,7 +49,7 @@ function App() {
     >
       {viewMode === 'active' && (
         <div className="flex h-full">
-          <div className={`flex-1 overflow-auto ${selectedTaskId ? '' : ''}`}>
+          <div className="flex-1 overflow-auto">
             <TaskBoard
               tasks={filteredTasks}
               taskCounts={taskCounts}
@@ -58,6 +59,7 @@ function App() {
           </div>
           {selectedTask && (
             <TaskDetail
+              taskId={selectedTaskId!}
               task={selectedTask}
               onClose={() => setSelectedTaskId(null)}
               agents={agents}
