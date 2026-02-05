@@ -1,23 +1,25 @@
 import { useState } from 'react'
-import { useQuery, useMutation } from 'convex/react'
-import { api } from '../convex/_generated/api'
 import { MainLayout } from './components/layout/MainLayout'
 import { TaskBoard } from './components/tasks/TaskBoard'
 import { TaskDetail } from './components/tasks/TaskDetail'
 import { ActivityFeed } from './components/activity/ActivityFeed'
 import { DocumentList } from './components/documents/DocumentList'
-import type { Id } from '../convex/_generated/dataModel'
+import { mockAgents, mockTasks, mockActivities, mockDocuments } from './mockData'
+import type { Task } from './mockData'
 
 type ViewMode = 'active' | 'chat' | 'broadcast' | 'docs'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('active')
-  const [selectedTaskId, setSelectedTaskId] = useState<Id<'tasks'> | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [selectedAgentFilter, setSelectedAgentFilter] = useState<string | null>(null)
 
-  const agents = useQuery(api.agents.getAllAgents) ?? []
-  const tasks = useQuery(api.tasks.getAllTasks) ?? []
-  const activities = useQuery(api.activities.getRecentActivities, { limit: 50 }) ?? []
+  const agents = mockAgents
+  const tasks = mockTasks
+  const activities = mockActivities
+  const documents = mockDocuments
+
+  const activeAgents = agents.filter(a => a.status === 'active').length
 
   const taskCounts = {
     inbox: tasks.filter(t => t.status === 'inbox').length,
@@ -25,15 +27,19 @@ function App() {
     in_progress: tasks.filter(t => t.status === 'in_progress').length,
     review: tasks.filter(t => t.status === 'review').length,
     done: tasks.filter(t => t.status === 'done').length,
+    waiting: tasks.filter(t => t.status === 'waiting').length,
   }
 
   const filteredTasks = selectedAgentFilter
     ? tasks.filter(t => t.assignedTo === selectedAgentFilter)
     : tasks
 
+  const selectedTask = tasks.find(t => t._id === selectedTaskId) || null
+
   return (
     <MainLayout
       agents={agents}
+      activeAgents={activeAgents}
       taskCount={tasks.length}
       viewMode={viewMode}
       onViewModeChange={setViewMode}
@@ -42,7 +48,7 @@ function App() {
     >
       {viewMode === 'active' && (
         <div className="flex h-full">
-          <div className={`flex-1 overflow-auto ${selectedTaskId ? 'pr-4' : ''}`}>
+          <div className={`flex-1 overflow-auto ${selectedTaskId ? '' : ''}`}>
             <TaskBoard
               tasks={filteredTasks}
               taskCounts={taskCounts}
@@ -50,13 +56,12 @@ function App() {
               selectedTaskId={selectedTaskId}
             />
           </div>
-          {selectedTaskId && (
-            <div className="w-96 border-l border-ink-100 bg-white">
-              <TaskDetail
-                taskId={selectedTaskId}
-                onClose={() => setSelectedTaskId(null)}
-              />
-            </div>
+          {selectedTask && (
+            <TaskDetail
+              task={selectedTask}
+              onClose={() => setSelectedTaskId(null)}
+              agents={agents}
+            />
           )}
         </div>
       )}
@@ -66,7 +71,7 @@ function App() {
       )}
 
       {viewMode === 'docs' && (
-        <DocumentList />
+        <DocumentList documents={documents} />
       )}
 
       {viewMode === 'broadcast' && (
