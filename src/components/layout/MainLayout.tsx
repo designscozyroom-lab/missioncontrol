@@ -1,12 +1,12 @@
 import { ReactNode, useState, useEffect } from 'react'
 import { MessageSquare, Radio, FileText, ChevronRight } from 'lucide-react'
-import type { Agent } from '../../mockData'
+import type { Doc } from '../../../convex/_generated/dataModel'
 
 type ViewMode = 'active' | 'chat' | 'broadcast' | 'docs'
 
 interface MainLayoutProps {
   children: ReactNode
-  agents: Agent[]
+  agents: Doc<'agents'>[]
   activeAgents: number
   taskCount: number
   viewMode: ViewMode
@@ -176,7 +176,7 @@ export function MainLayout({
                       fill="none"
                       stroke="#10B981"
                       strokeWidth="4"
-                      strokeDasharray={`${(activeAgents / agents.length) * 126} 126`}
+                      strokeDasharray={`${agents.length > 0 ? (activeAgents / agents.length) * 126 : 0} 126`}
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -222,8 +222,10 @@ export function MainLayout({
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      <span className="text-[11px] text-emerald-600 font-medium">WORKING</span>
+                      <div className={`w-1.5 h-1.5 rounded-full ${agent.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                      <span className={`text-[11px] font-medium ${agent.status === 'active' ? 'text-emerald-600' : 'text-gray-500'}`}>
+                        {agent.status === 'active' ? 'WORKING' : agent.status.toUpperCase()}
+                      </span>
                     </div>
                     <div className="text-[11px] text-ink-400 truncate">{agent.role}</div>
                   </div>
