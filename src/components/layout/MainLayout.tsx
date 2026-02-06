@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react'
+import { type ReactNode, useState, useEffect } from 'react'
 import { MessageSquare, Radio, FileText, ChevronRight } from 'lucide-react'
 import type { Doc } from '../../../convex/_generated/dataModel'
 

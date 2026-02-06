@@ -30,8 +30,6 @@ const statusColors = {
 }
 
 export function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
-  const timeSinceHeartbeat = Date.now() - agent.lastHeartbeat
-  const isRecent = timeSinceHeartbeat < 5 * 60 * 1000 // 5 minutes
 
   return (
     <button
