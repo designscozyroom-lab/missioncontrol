@@ -1,8 +1,16 @@
 import { type ReactNode, useState, useEffect } from 'react'
-import { MessageSquare, Radio, FileText, Layers } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Kanban,
+  Activity,
+  FileText,
+  Radio,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import type { Doc } from '../../../convex/_generated/dataModel'
 
-type ViewMode = 'active' | 'chat' | 'broadcast' | 'docs'
+export type ViewMode = 'dashboard' | 'tasks' | 'activity' | 'docs' | 'broadcast'
 
 interface MainLayoutProps {
   children: ReactNode
@@ -15,11 +23,19 @@ interface MainLayoutProps {
   onAgentFilterChange: (agentId: string | null) => void
 }
 
-const levelColors: Record<string, string> = {
-  LEAD: 'bg-amber-100 text-amber-700',
-  SPC: 'bg-coral-100 text-coral-600',
-  INT: 'bg-sky-100 text-sky-700',
-  WORKING: 'bg-emerald-100 text-emerald-700',
+const navItems: { mode: ViewMode; label: string; icon: typeof LayoutDashboard }[] = [
+  { mode: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+  { mode: 'tasks', label: 'Tasks', icon: Kanban },
+  { mode: 'activity', label: 'Activity', icon: Activity },
+  { mode: 'docs', label: 'Documents', icon: FileText },
+  { mode: 'broadcast', label: 'Broadcast', icon: Radio },
+]
+
+const statusDot: Record<string, string> = {
+  active: 'bg-emerald-400',
+  idle: 'bg-amber-400',
+  blocked: 'bg-rose-400',
+  offline: 'bg-slate-500',
 }
 
 export function MainLayout({
@@ -32,6 +48,7 @@ export function MainLayout({
   selectedAgentFilter,
   onAgentFilterChange,
 }: MainLayoutProps) {
+  const [collapsed, setCollapsed] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -39,14 +56,8 @@ export function MainLayout({
     return () => clearInterval(timer)
   }, [])
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
-  }
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
 
   const formatDate = (date: Date) => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -54,163 +65,163 @@ export function MainLayout({
     return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`
   }
 
-  const modeButtons: { mode: ViewMode; label: string; icon: ReactNode }[] = [
-    { mode: 'active', label: 'Active', icon: <Layers size={13} /> },
-    { mode: 'chat', label: 'Chat', icon: <MessageSquare size={13} /> },
-    { mode: 'broadcast', label: 'Broadcast', icon: <Radio size={13} /> },
-    { mode: 'docs', label: 'Docs', icon: <FileText size={13} /> },
-  ]
-
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <header className="bg-white border-b border-ink-100 px-5 py-2.5 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
+    <div className="h-screen flex overflow-hidden bg-slate-50">
+      <aside
+        className={`${collapsed ? 'w-[68px]' : 'w-60'} bg-slate-900 flex flex-col flex-shrink-0 transition-all duration-200 ease-in-out`}
+      >
+        <div className={`h-14 flex items-center ${collapsed ? 'justify-center px-2' : 'px-5'} border-b border-slate-800`}>
+          {!collapsed && (
             <div className="flex items-center gap-2.5">
-              <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-ink-700">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <div className="w-7 h-7 rounded-lg bg-teal-500 flex items-center justify-center">
+                <svg viewBox="0 0 16 16" className="w-4 h-4 text-white">
+                  <path fill="currentColor" d="M8 1l7 4-7 4-7-4 7-4zm0 9l5.5-3.14L15 8l-7 4-7-4 1.5-.86L8 10zm0 3l5.5-3.14L15 11l-7 4-7-4 1.5-.86L8 13z"/>
+                </svg>
+              </div>
+              <span className="font-semibold text-sm text-white tracking-wide">Mission Control</span>
+            </div>
+          )}
+          {collapsed && (
+            <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center">
+              <svg viewBox="0 0 16 16" className="w-4 h-4 text-white">
+                <path fill="currentColor" d="M8 1l7 4-7 4-7-4 7-4zm0 9l5.5-3.14L15 8l-7 4-7-4 1.5-.86L8 10zm0 3l5.5-3.14L15 11l-7 4-7-4 1.5-.86L8 13z"/>
               </svg>
-              <span className="font-semibold text-sm tracking-wide text-ink-700 uppercase">
-                Mission Control
-              </span>
             </div>
-
-            <span className="px-2.5 py-1 bg-cream-200 rounded text-[11px] font-medium text-ink-500 tracking-wide uppercase">
-              SiteGPT
-            </span>
-
-            <div className="flex items-center gap-10 pl-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-ink-900 leading-none">{activeAgents}</div>
-                <div className="text-[10px] text-ink-400 uppercase tracking-widest mt-0.5">Agents Active</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-ink-900 leading-none">{taskCount}</div>
-                <div className="text-[10px] text-ink-400 uppercase tracking-widest mt-0.5">Tasks in Queue</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-0.5 bg-cream-100 rounded-full p-0.5">
-              {modeButtons.map(({ mode, label, icon }) => (
-                <button
-                  key={mode}
-                  onClick={() => onViewModeChange(mode)}
-                  data-testid={`nav-${mode}-btn`}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    viewMode === mode
-                      ? 'bg-coral-500 text-white shadow-sm'
-                      : 'text-ink-500 hover:text-ink-700 hover:bg-cream-200'
-                  }`}
-                >
-                  {icon}
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="w-px h-8 bg-ink-100" />
-
-            <div className="text-right">
-              <div className="text-sm font-mono font-medium text-ink-700 leading-none">{formatTime(currentTime)}</div>
-              <div className="text-[10px] text-ink-400 mt-0.5">{formatDate(currentTime)}</div>
-            </div>
-
-            <div className="flex items-center gap-1.5 pl-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Online</span>
-            </div>
-          </div>
+          )}
         </div>
-      </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-56 bg-white border-r border-ink-100 flex flex-col flex-shrink-0">
-          <div className="px-4 py-3 border-b border-ink-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-coral-500 text-xs">&#9733;</span>
-              <h2 className="text-[11px] font-semibold text-ink-700 uppercase tracking-wider">Agents</h2>
+        <nav className="px-3 py-4 space-y-1">
+          {navItems.map(({ mode, label, icon: Icon }) => {
+            const isActive = viewMode === mode
+            return (
+              <button
+                key={mode}
+                onClick={() => onViewModeChange(mode)}
+                data-testid={`nav-${mode}-btn`}
+                className={`w-full flex items-center gap-3 ${collapsed ? 'justify-center px-2' : 'px-3'} py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-teal-500/15 text-teal-400'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                }`}
+              >
+                <Icon size={18} className="flex-shrink-0" />
+                {!collapsed && <span>{label}</span>}
+              </button>
+            )
+          })}
+        </nav>
+
+        <div className={`mx-3 my-2 border-t border-slate-800`} />
+
+        {!collapsed && (
+          <div className="px-3 mb-2">
+            <div className="flex items-center justify-between px-3 mb-2">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Agents</span>
+              <span className="text-[10px] text-slate-500 font-medium">{activeAgents}/{agents.length}</span>
             </div>
-            <span className="text-[11px] text-ink-400 font-medium">{agents.length}</span>
           </div>
+        )}
 
-          <div className="flex-1 overflow-y-auto px-3 py-2">
+        <div className={`flex-1 overflow-y-auto dark-scroll ${collapsed ? 'px-2' : 'px-3'} pb-3`}>
+          {!collapsed && (
             <button
               onClick={() => onAgentFilterChange(null)}
               data-testid="all-agents-btn"
-              className={`w-full text-left p-2.5 rounded-lg mb-2 transition-colors ${
-                selectedAgentFilter === null ? 'bg-cream-100' : 'hover:bg-cream-50'
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                selectedAgentFilter === null
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <div className="relative flex-shrink-0">
-                  <svg className="w-10 h-10 transform -rotate-90">
-                    <circle cx="20" cy="20" r="16" fill="none" stroke="#E8E8E8" strokeWidth="3" />
-                    <circle
-                      cx="20" cy="20" r="16" fill="none"
-                      stroke="#10B981" strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeDasharray={`${agents.length > 0 ? (activeAgents / agents.length) * 100.5 : 0} 100.5`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-5 h-5 rounded-full bg-cream-200 flex items-center justify-center">
-                      <svg viewBox="0 0 16 16" className="w-3 h-3 text-ink-500">
-                        <path fill="currentColor" d="M8 8a3 3 0 100-6 3 3 0 000 6zm0 2c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="font-medium text-sm text-ink-900">All Agents</div>
-                  <div className="text-[10px] font-semibold text-emerald-600 tracking-wide">{activeAgents} ACTIVE</div>
-                  <div className="text-[10px] text-ink-400">{agents.length} total</div>
-                </div>
+              <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-teal-400">
+                {activeAgents}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-[13px] font-medium">All Agents</div>
               </div>
             </button>
+          )}
 
-            <div className="space-y-0.5">
-              {agents.map((agent) => (
+          {agents.map((agent) => (
+            <button
+              key={agent._id}
+              onClick={() => onAgentFilterChange(selectedAgentFilter === agent.agentId ? null : agent.agentId)}
+              data-testid={`agent-${agent.agentId}-btn`}
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-1' : 'gap-2.5 px-3'} py-1.5 rounded-lg transition-colors ${
+                selectedAgentFilter === agent.agentId
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800/60'
+              }`}
+            >
+              <div className="relative flex-shrink-0">
+                <div className={`${collapsed ? 'w-8 h-8' : 'w-7 h-7'} rounded-full bg-slate-700 flex items-center justify-center text-sm border border-slate-600`}>
+                  {agent.emoji}
+                </div>
+                <div className={`absolute -bottom-px -right-px w-2.5 h-2.5 rounded-full border-2 border-slate-900 ${statusDot[agent.status]}`} />
+              </div>
+              {!collapsed && (
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="text-[12px] font-medium truncate">{agent.name}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{agent.role}</div>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className={`border-t border-slate-800 ${collapsed ? 'px-2' : 'px-3'} py-3`}>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {!collapsed && <span className="text-xs">Collapse</span>}
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-14 flex items-center justify-between px-6 bg-white border-b border-slate-200 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <h1 className="text-[15px] font-semibold text-slate-900">
+              {navItems.find(n => n.mode === viewMode)?.label}
+            </h1>
+            {selectedAgentFilter && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 rounded-full">
+                <span className="text-xs text-teal-700 font-medium">
+                  Filtered: {agents.find(a => a.agentId === selectedAgentFilter)?.name}
+                </span>
                 <button
-                  key={agent._id}
-                  onClick={() => onAgentFilterChange(
-                    selectedAgentFilter === agent.agentId ? null : agent.agentId
-                  )}
-                  data-testid={`agent-${agent.agentId}-btn`}
-                  className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors flex items-center gap-2.5 ${
-                    selectedAgentFilter === agent.agentId ? 'bg-cream-100' : 'hover:bg-cream-50'
-                  }`}
+                  onClick={() => onAgentFilterChange(null)}
+                  className="text-teal-500 hover:text-teal-700"
                 >
-                  <div className="relative flex-shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center text-base border border-ink-100/60">
-                      {agent.emoji}
-                    </div>
-                    {agent.status === 'active' && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-[1.5px] border-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-ink-900 text-[13px] truncate">{agent.name}</span>
-                      <span className={`text-[9px] px-1.5 py-px rounded font-semibold leading-relaxed ${levelColors[agent.level]}`}>
-                        {agent.level}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className={`text-[10px] font-semibold ${agent.status === 'active' ? 'text-emerald-600' : 'text-ink-400'}`}>
-                        {agent.status === 'active' ? 'WORKING' : agent.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-ink-400 truncate leading-tight">{agent.role}</div>
-                  </div>
+                  <svg viewBox="0 0 12 12" className="w-3 h-3"><path fill="currentColor" d="M9.4 3.4L8.6 2.6 6 5.2 3.4 2.6 2.6 3.4 5.2 6 2.6 8.6 3.4 9.4 6 6.8 8.6 9.4 9.4 8.6 6.8 6z"/></svg>
                 </button>
-              ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-soft" />
+                <span className="text-slate-500 text-xs font-medium">{activeAgents} active</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <span className="text-slate-500 text-xs font-medium">{taskCount} tasks</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-right">
+              <div>
+                <div className="text-sm font-mono font-medium text-slate-700 leading-none">{formatTime(currentTime)}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">{formatDate(currentTime)}</div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
             </div>
           </div>
-        </aside>
+        </header>
 
-        <main className="flex-1 overflow-hidden bg-cream-50">
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </div>
