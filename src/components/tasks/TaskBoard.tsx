@@ -21,14 +21,23 @@ interface TaskBoardProps {
 type StatusFilter = 'all' | 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done' | 'waiting'
 
 const statusColumns = [
-  { key: 'inbox' as const, label: 'INBOX', color: 'bg-gray-400' },
-  { key: 'assigned' as const, label: 'ASSIGNED', color: 'bg-amber-500' },
-  { key: 'in_progress' as const, label: 'IN PROGRESS', color: 'bg-blue-500' },
-  { key: 'review' as const, label: 'REVIEW', color: 'bg-purple-500' },
+  { key: 'assigned' as const, label: 'ASSIGNED', color: 'bg-amber-400' },
+  { key: 'in_progress' as const, label: 'IN PROGRESS', color: 'bg-coral-500' },
+  { key: 'review' as const, label: 'REVIEW', color: 'bg-sky-500' },
+  { key: 'inbox' as const, label: 'INBOX', color: 'bg-ink-300' },
   { key: 'done' as const, label: 'DONE', color: 'bg-emerald-500' },
   { key: 'waiting' as const, label: 'WAITING', color: 'bg-orange-400' },
   { key: 'blocked' as const, label: 'BLOCKED', color: 'bg-red-500' },
 ]
+
+const filterDotColors: Record<string, string> = {
+  inbox: 'bg-ink-300',
+  assigned: 'bg-amber-400',
+  in_progress: 'bg-coral-500',
+  review: 'bg-sky-500',
+  done: 'bg-emerald-500',
+  waiting: 'bg-orange-400',
+}
 
 export function TaskBoard({ tasks, taskCounts, onTaskSelect, selectedTaskId }: TaskBoardProps) {
   const [filter, setFilter] = useState<StatusFilter>('all')
@@ -53,39 +62,33 @@ export function TaskBoard({ tasks, taskCounts, onTaskSelect, selectedTaskId }: T
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header with filters */}
-      <div className="p-4 border-b border-ink-100 bg-white">
+      <div className="px-4 py-3 border-b border-ink-100 bg-white flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-emerald-500">★</span>
-            <h2 className="text-sm font-medium text-ink-700 uppercase tracking-wider">
-              MISSION QUEUE
+            <span className="text-coral-500 text-xs">&#9733;</span>
+            <h2 className="text-[11px] font-semibold text-ink-700 uppercase tracking-wider">
+              Mission Queue
             </h2>
           </div>
-          
-          <div className="flex items-center gap-1 bg-cream-100 rounded-lg p-1">
+
+          <div className="flex items-center gap-0.5 bg-cream-100 rounded-lg p-0.5">
             {filters.map(({ key, label, count }) => (
               <button
                 key={key}
                 onClick={() => setFilter(key)}
                 data-testid={`filter-${key}-btn`}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors flex items-center gap-1.5 ${
                   filter === key
                     ? 'bg-white text-ink-900 shadow-sm'
                     : 'text-ink-500 hover:text-ink-700'
                 }`}
               >
-                {key === 'inbox' && <span className="text-emerald-500">★</span>}
-                {key === 'assigned' && <span className="w-2 h-2 rounded-full bg-amber-400"></span>}
-                {key === 'in_progress' && <span className="w-2 h-2 rounded-full bg-amber-500"></span>}
-                {key === 'review' && <span className="w-2 h-2 rounded-full bg-amber-500"></span>}
-                {key === 'done' && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
-                {key === 'waiting' && <span className="w-2 h-2 rounded-full bg-orange-400"></span>}
+                {key !== 'all' && (
+                  <span className={`w-1.5 h-1.5 rounded-full ${filterDotColors[key] || 'bg-ink-300'}`} />
+                )}
                 {label}
                 {count !== undefined && count > 0 && (
-                  <span className="text-xs text-ink-400">
-                    {count}
-                  </span>
+                  <span className="text-[10px] text-ink-400">{count}</span>
                 )}
               </button>
             ))}
@@ -93,29 +96,26 @@ export function TaskBoard({ tasks, taskCounts, onTaskSelect, selectedTaskId }: T
         </div>
       </div>
 
-      {/* Kanban columns */}
-      <div className="flex-1 overflow-x-auto p-4">
-        <div className="flex gap-4 h-full">
+      <div className="flex-1 overflow-x-auto p-3">
+        <div className="flex gap-3 h-full min-w-0">
           {visibleColumns.map((column) => {
             const columnTasks = getTasksForColumn(column.key)
             return (
               <div
                 key={column.key}
-                className="w-80 flex flex-col bg-cream-100/50 rounded-lg min-h-0"
+                className="w-72 flex-shrink-0 flex flex-col min-h-0 bg-cream-100/60 rounded-lg"
               >
-                {/* Column header */}
-                <div className="p-3 flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${column.color}`} />
-                  <h3 className="font-medium text-ink-700 uppercase text-xs tracking-wide">
+                <div className="px-3 py-2.5 flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${column.color}`} />
+                  <h3 className="font-semibold text-ink-500 uppercase text-[10px] tracking-wider">
                     {column.label}
                   </h3>
-                  <span className="text-xs text-ink-400 ml-auto">
+                  <span className="text-[10px] text-ink-400 ml-auto font-medium">
                     {columnTasks.length}
                   </span>
                 </div>
-                
-                {/* Tasks list */}
-                <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+
+                <div className="flex-1 overflow-y-auto px-1.5 pb-1.5 space-y-1">
                   {columnTasks.map((task) => (
                     <TaskCard
                       key={task._id}
@@ -125,7 +125,7 @@ export function TaskBoard({ tasks, taskCounts, onTaskSelect, selectedTaskId }: T
                     />
                   ))}
                   {columnTasks.length === 0 && (
-                    <div className="text-center py-8 text-ink-300 text-sm">
+                    <div className="text-center py-6 text-ink-300 text-[11px]">
                       No tasks
                     </div>
                   )}

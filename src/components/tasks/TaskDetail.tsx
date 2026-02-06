@@ -57,85 +57,73 @@ export function TaskDetail({ taskId, task, onClose, agents }: TaskDetailProps) {
   }
 
   return (
-    <div className="w-[450px] border-l border-ink-100 bg-white flex flex-col h-full">
-      {/* Header */}
-      <div className="p-4 border-b border-ink-100">
-        <div className="flex items-center justify-between mb-3">
+    <div className="w-[420px] border-l border-ink-100 bg-white flex flex-col h-full animate-slide-in flex-shrink-0">
+      <div className="px-4 py-3 border-b border-ink-100 flex-shrink-0">
+        <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
-            <span className="text-amber-500">●</span>
-            <span className="text-xs font-medium text-ink-500 uppercase tracking-wider">TASK DETAIL</span>
+            <span className="text-coral-500 text-xs">&#9679;</span>
+            <span className="text-[11px] font-semibold text-ink-500 uppercase tracking-wider">Task Detail</span>
           </div>
           <button
             onClick={onClose}
             data-testid="close-task-detail-btn"
             className="p-1 hover:bg-cream-100 rounded transition-colors"
           >
-            <X size={18} className="text-ink-400" />
+            <X size={16} className="text-ink-400" />
           </button>
         </div>
-        
-        {/* Back button and Deliverable */}
+
         <div className="flex items-center justify-between">
-          <button 
+          <button
             onClick={onClose}
-            className="flex items-center gap-1 text-sm text-ink-500 hover:text-ink-700"
+            className="flex items-center gap-1 text-[12px] text-ink-500 hover:text-ink-700 transition-colors"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={12} />
             Back to Task
           </button>
-          <button className="px-3 py-1 border border-ink-200 rounded text-xs text-ink-500 hover:bg-cream-50">
-            DELIVERABLE
-          </button>
+          <span className="px-2.5 py-1 border border-ink-200 rounded text-[10px] font-medium text-ink-500 uppercase tracking-wider">
+            Deliverable
+          </span>
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Task Title */}
-        <div className="p-4 border-b border-ink-100">
-          <div className="flex items-start gap-2 mb-4">
-            <span className="text-amber-500 text-lg">📄</span>
-            <h2 className="font-serif text-xl text-ink-900 leading-tight">
-              {task.title}
-            </h2>
-          </div>
+        <div className="px-4 py-4 border-b border-ink-100">
+          <h2 className="text-base font-semibold text-ink-900 leading-snug">
+            {task.title}
+          </h2>
         </div>
 
-        {/* Task Description */}
         {task.description && (
-          <div className="p-4 border-b border-ink-100">
-            <h3 className="font-serif text-sm font-semibold text-ink-500 uppercase tracking-wider mb-3">
+          <div className="px-4 py-3 border-b border-ink-100">
+            <h3 className="text-[10px] font-semibold text-ink-400 uppercase tracking-wider mb-2">
               Description
             </h3>
-            <div className="prose prose-sm max-w-none">
-              <p className="text-ink-700 whitespace-pre-wrap leading-relaxed">
-                {task.description}
-              </p>
-            </div>
+            <p className="text-[13px] text-ink-700 whitespace-pre-wrap leading-relaxed">
+              {task.description}
+            </p>
           </div>
         )}
 
-        {/* Metadata */}
-        <div className="p-4 border-b border-ink-100 space-y-3">
-          {/* Status */}
+        <div className="px-4 py-3 border-b border-ink-100 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-500">Status</span>
+            <span className="text-[12px] text-ink-400">Status</span>
             <div className="relative">
               <button
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
-                className="flex items-center gap-1 px-2 py-1 bg-cream-100 rounded text-sm font-medium text-ink-700 hover:bg-cream-200 transition-colors"
+                className="flex items-center gap-1 px-2 py-0.5 bg-cream-100 rounded text-[12px] font-medium text-ink-700 hover:bg-cream-200 transition-colors"
               >
                 {statusOptions.find(s => s.value === task.status)?.label}
-                <ChevronDown size={14} />
+                <ChevronDown size={12} />
               </button>
               {showStatusMenu && (
-                <div className="absolute right-0 top-full mt-1 bg-white border border-ink-100 rounded-lg shadow-lg z-10 py-1 min-w-32">
+                <div className="absolute right-0 top-full mt-1 bg-white border border-ink-100 rounded-lg shadow-lg z-10 py-1 min-w-28">
                   {statusOptions.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => handleStatusChange(option.value)}
-                      className={`w-full text-left px-3 py-1.5 text-sm hover:bg-cream-50 ${
-                        task.status === option.value ? 'text-amber-600 font-medium' : 'text-ink-700'
+                      className={`w-full text-left px-3 py-1.5 text-[12px] hover:bg-cream-50 transition-colors ${
+                        task.status === option.value ? 'text-coral-600 font-medium' : 'text-ink-700'
                       }`}
                     >
                       {option.label}
@@ -146,59 +134,55 @@ export function TaskDetail({ taskId, task, onClose, agents }: TaskDetailProps) {
             </div>
           </div>
 
-          {/* Priority */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-500">Priority</span>
-            <span className={`text-xs px-2 py-1 rounded font-medium ${
+            <span className="text-[12px] text-ink-400">Priority</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wide ${
               task.priority === 'urgent' ? 'bg-red-100 text-red-600' :
               task.priority === 'high' ? 'bg-orange-100 text-orange-600' :
-              task.priority === 'medium' ? 'bg-blue-100 text-blue-600' :
+              task.priority === 'medium' ? 'bg-sky-100 text-sky-600' :
               'bg-gray-100 text-gray-600'
             }`}>
               {task.priority}
             </span>
           </div>
 
-          {/* Assigned To */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-500">Assigned To</span>
-            <span className="text-sm text-ink-700">
+            <span className="text-[12px] text-ink-400">Assigned To</span>
+            <span className="text-[12px] text-ink-700 font-medium">
               {task.assignedTo ? getAgentName(task.assignedTo) : 'Unassigned'}
             </span>
           </div>
 
-          {/* Created */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-500">Created</span>
-            <span className="text-sm text-ink-700">
+            <span className="text-[12px] text-ink-400">Created</span>
+            <span className="text-[12px] text-ink-500">
               {formatDistanceToNow(task.createdAt, { addSuffix: true })}
             </span>
           </div>
         </div>
 
-        {/* Comments */}
-        <div className="p-4">
-          <h3 className="text-sm font-medium text-ink-700 mb-3">
+        <div className="px-4 py-3">
+          <h3 className="text-[10px] font-semibold text-ink-400 uppercase tracking-wider mb-3">
             Comments ({messages?.length || 0})
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {messages?.map((message) => (
-              <div key={message._id} className="bg-cream-50 rounded-lg p-3">
+              <div key={message._id} className="bg-cream-50 rounded-lg p-3 animate-fade-in">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-ink-700">
+                  <span className="text-[12px] font-medium text-ink-700">
                     {getAgentName(message.fromAgentId)}
                   </span>
-                  <span className="text-xs text-ink-400">
+                  <span className="text-[10px] text-ink-400">
                     {formatDistanceToNow(message.createdAt, { addSuffix: true })}
                   </span>
                 </div>
-                <p className="text-sm text-ink-600 whitespace-pre-wrap">
+                <p className="text-[12px] text-ink-600 whitespace-pre-wrap leading-relaxed">
                   {message.content}
                 </p>
               </div>
             ))}
             {(!messages || messages.length === 0) && (
-              <p className="text-sm text-ink-400 text-center py-4">
+              <p className="text-[12px] text-ink-400 text-center py-4">
                 No comments yet
               </p>
             )}
@@ -206,8 +190,7 @@ export function TaskDetail({ taskId, task, onClose, agents }: TaskDetailProps) {
         </div>
       </div>
 
-      {/* Comment Input */}
-      <div className="p-4 border-t border-ink-100 bg-white">
+      <div className="px-4 py-3 border-t border-ink-100 bg-white flex-shrink-0">
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -215,14 +198,14 @@ export function TaskDetail({ taskId, task, onClose, agents }: TaskDetailProps) {
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
             placeholder="Add a comment..."
-            className="flex-1 px-3 py-2 border border-ink-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="flex-1 px-3 py-1.5 border border-ink-100 rounded-lg text-[12px] focus:outline-none focus:ring-1 focus:ring-coral-400 focus:border-coral-400 transition-colors"
           />
           <button
             onClick={handleSendComment}
             disabled={!newComment.trim()}
-            className="p-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 bg-coral-500 text-white rounded-lg hover:bg-coral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Send size={18} />
+            <Send size={14} />
           </button>
         </div>
       </div>
