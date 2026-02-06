@@ -21,9 +21,13 @@ interface TaskBoardProps {
 type StatusFilter = 'all' | 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done' | 'waiting'
 
 const statusColumns = [
+  { key: 'inbox' as const, label: 'INBOX', color: 'bg-gray-400' },
   { key: 'assigned' as const, label: 'ASSIGNED', color: 'bg-amber-500' },
-  { key: 'in_progress' as const, label: 'IN PROGRESS', color: 'bg-amber-500' },
-  { key: 'review' as const, label: 'REVIEW', color: 'bg-amber-500' },
+  { key: 'in_progress' as const, label: 'IN PROGRESS', color: 'bg-blue-500' },
+  { key: 'review' as const, label: 'REVIEW', color: 'bg-purple-500' },
+  { key: 'done' as const, label: 'DONE', color: 'bg-emerald-500' },
+  { key: 'waiting' as const, label: 'WAITING', color: 'bg-orange-400' },
+  { key: 'blocked' as const, label: 'BLOCKED', color: 'bg-red-500' },
 ]
 
 export function TaskBoard({ tasks, taskCounts, onTaskSelect, selectedTaskId }: TaskBoardProps) {

@@ -1,68 +1,63 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// ClawQuests agent definitions - actual agent names
+const CLAWQUESTS_AGENTS = [
+  {
+    agentId: "marketing_lead",
+    name: "Naman",
+    emoji: "🧭",
+    role: "Marketing Lead",
+    status: "active" as const,
+    level: "LEAD" as const,
+  },
+  {
+    agentId: "site_researcher",
+    name: "Sai",
+    emoji: "🔎",
+    role: "Site Researcher",
+    status: "active" as const,
+    level: "SPC" as const,
+  },
+  {
+    agentId: "content_seo",
+    name: "Vivaan",
+    emoji: "✍️",
+    role: "Content & SEO",
+    status: "active" as const,
+    level: "SPC" as const,
+  },
+  {
+    agentId: "agentic_outreach",
+    name: "Nysa",
+    emoji: "📣",
+    role: "Outreach Specialist",
+    status: "active" as const,
+    level: "INT" as const,
+  },
+  {
+    agentId: "partner_scout",
+    name: "Shayra",
+    emoji: "🤝",
+    role: "Partner Scout",
+    status: "active" as const,
+    level: "INT" as const,
+  },
+  {
+    agentId: "ops_autopost",
+    name: "Vaishu",
+    emoji: "⚙️",
+    role: "Ops & Autopost",
+    status: "active" as const,
+    level: "SPC" as const,
+  },
+];
+
 // Initialize all 6 agents
 export const initializeAllAgents = mutation({
   args: {},
   handler: async (ctx) => {
-    const agents = [
-      {
-        agentId: "marketing_lead",
-        name: "Bhanu",
-        emoji: "🎯",
-        role: "Marketing Lead",
-        status: "active" as const,
-        level: "LEAD" as const,
-        lastHeartbeat: Date.now(),
-      },
-      {
-        agentId: "site_researcher",
-        name: "Fury",
-        emoji: "🔍",
-        role: "Site Researcher",
-        status: "active" as const,
-        level: "SPC" as const,
-        lastHeartbeat: Date.now(),
-      },
-      {
-        agentId: "content_seo",
-        name: "Groot",
-        emoji: "🌱",
-        role: "Content & SEO",
-        status: "active" as const,
-        level: "SPC" as const,
-        lastHeartbeat: Date.now(),
-      },
-      {
-        agentId: "agentic_outreach",
-        name: "Rocket",
-        emoji: "🚀",
-        role: "Outreach Specialist",
-        status: "active" as const,
-        level: "INT" as const,
-        lastHeartbeat: Date.now(),
-      },
-      {
-        agentId: "partner_scout",
-        name: "Nebula",
-        emoji: "🌌",
-        role: "Partner Scout",
-        status: "active" as const,
-        level: "INT" as const,
-        lastHeartbeat: Date.now(),
-      },
-      {
-        agentId: "ops_autopost",
-        name: "Drax",
-        emoji: "⚡",
-        role: "Ops & Autopost",
-        status: "active" as const,
-        level: "SPC" as const,
-        lastHeartbeat: Date.now(),
-      },
-    ];
-
-    for (const agent of agents) {
+    for (const agent of CLAWQUESTS_AGENTS) {
       // Check if agent already exists
       const existing = await ctx.db
         .query("agents")
@@ -70,11 +65,36 @@ export const initializeAllAgents = mutation({
         .first();
 
       if (!existing) {
-        await ctx.db.insert("agents", agent);
+        await ctx.db.insert("agents", {
+          ...agent,
+          lastHeartbeat: Date.now(),
+        });
       }
     }
 
-    return { initialized: agents.length };
+    return { initialized: CLAWQUESTS_AGENTS.length };
+  },
+});
+
+// Reset and reinitialize all agents (updates existing agents with correct names)
+export const resetAllAgents = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Delete all existing agents
+    const existingAgents = await ctx.db.query("agents").collect();
+    for (const agent of existingAgents) {
+      await ctx.db.delete(agent._id);
+    }
+
+    // Insert fresh agent data
+    for (const agent of CLAWQUESTS_AGENTS) {
+      await ctx.db.insert("agents", {
+        ...agent,
+        lastHeartbeat: Date.now(),
+      });
+    }
+
+    return { reset: true, count: CLAWQUESTS_AGENTS.length };
   },
 });
 

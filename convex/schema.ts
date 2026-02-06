@@ -91,15 +91,21 @@ export default defineSchema({
       v.literal("code"),
       v.literal("design"),
       v.literal("notes"),
-      v.literal("other")
+      v.literal("other"),
+      v.literal("deliverable")
     ),
     taskId: v.optional(v.id("tasks")),
     agentId: v.string(),
+    // For deduplication - stores file path or content hash
+    sourcePath: v.optional(v.string()),
+    contentHash: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_taskId", ["taskId"])
-    .index("by_agentId", ["agentId"]),
+    .index("by_agentId", ["agentId"])
+    .index("by_sourcePath", ["sourcePath"])
+    .index("by_contentHash", ["contentHash"]),
 
   // Activities - activity feed
   activities: defineTable({

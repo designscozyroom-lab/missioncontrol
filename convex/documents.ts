@@ -1,7 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Create document
+// Create or update document (with deduplication)
 export const createDocument = mutation({
   args: {
     title: v.string(),
@@ -11,13 +11,62 @@ export const createDocument = mutation({
       v.literal("code"),
       v.literal("design"),
       v.literal("notes"),
-      v.literal("other")
+      v.literal("other"),
+      v.literal("deliverable")
     ),
     taskId: v.optional(v.id("tasks")),
     agentId: v.string(),
+    sourcePath: v.optional(v.string()),
+    contentHash: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
+
+    // Check for existing document by sourcePath (file-based deduplication)
+    if (args.sourcePath) {
+      const existing = await ctx.db
+        .query("documents")
+        .withIndex("by_sourcePath", (q) => q.eq("sourcePath", args.sourcePath))
+        .first();
+
+      if (existing) {
+        // Update existing document
+        await ctx.db.patch(existing._id, {
+          title: args.title,
+          content: args.content,
+          type: args.type,
+          updatedAt: now,
+          contentHash: args.contentHash,
+        });
+
+        // Log activity
+        await ctx.db.insert("activities", {
+          agentId: args.agentId,
+          action: "updated",
+          targetType: "document",
+          targetId: existing._id,
+          message: `Updated document: ${args.title}`,
+          createdAt: now,
+        });
+
+        return existing._id;
+      }
+    }
+
+    // Check for existing document by contentHash (content-based deduplication)
+    if (args.contentHash) {
+      const existing = await ctx.db
+        .query("documents")
+        .withIndex("by_contentHash", (q) => q.eq("contentHash", args.contentHash))
+        .first();
+
+      if (existing) {
+        // Same content already exists, skip
+        return existing._id;
+      }
+    }
+
+    // Create new document
     const docId = await ctx.db.insert("documents", {
       ...args,
       createdAt: now,
