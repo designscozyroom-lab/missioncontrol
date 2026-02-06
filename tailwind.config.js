@@ -16,13 +16,16 @@ export default {
           900: '#1A1A1A',
           700: '#3D3D3D',
           500: '#6B6B6B',
-          300: '#9A9A9A',
-          100: '#E5E5E5',
+          400: '#8A8A8A',
+          300: '#B0B0B0',
+          200: '#D4D4D4',
+          100: '#E8E8E8',
         },
-        brick: {
-          600: '#C53030',
-          500: '#E53E3E',
-          400: '#FC8181',
+        coral: {
+          600: '#C4513D',
+          500: '#E8725C',
+          400: '#F09A88',
+          100: '#FDEAE6',
         },
         gold: {
           500: '#D69E2E',
@@ -30,8 +33,7 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'Menlo', 'monospace'],
       },
     },
